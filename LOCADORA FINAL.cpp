@@ -6,7 +6,7 @@
 
 typedef struct{ long long int cpf;
 				int tel;
-				char nome[20],endereco[20],depend1[20],depend2[20];								
+				char nome[20],endereco[20],depend1[20],depend2[20];
 }Cliente; Cliente cliente, clienteNulo;
 
 typedef struct{ int cod;
@@ -15,6 +15,7 @@ typedef struct{ int cod;
 }Filme; Filme filme, filmeNulo;
 
 FILE*pcliente;
+FILE*pfilme;
 
 void linha(){
 	int i;
@@ -36,6 +37,12 @@ void abreArquivo(){
 	pcliente = fopen("locadora.bin", "w+b");
 }
 
+
+void abreArquivo1(){
+	pfilme = fopen("locadoraf.bin", "r+b");
+	if(pfilme == NULL)
+	pfilme = fopen("locadoraf.bin", "w+b");
+}
 
 void inserir(){
 int resp;
@@ -84,8 +91,8 @@ cabec();
 	printf("\nGENERO: ");
 	fflush(stdin);
 		gets(filme.genero);
-	fseek(pcliente, 0,SEEK_END);
-	fwrite(&filme, sizeof(Filme), 1, pcliente);		
+	fseek(pfilme, 0,SEEK_END);
+	fwrite(&filme, sizeof(Filme), 1, pfilme);		
 	printf("\n\nFILME CADASTRADO COM SUCESSO!\n\n");	
 	printf("\n\nCADASTRAR OUTRO FILME? 1-SIM   /  2-NAO\n");
 		scanf("%d",&resp);
@@ -114,13 +121,13 @@ return -1;
 int procura1(int codP){
  int p;
  p = 0; 
-rewind(pcliente);
-fread(&filme, sizeof(Filme), 1, pcliente); 
+rewind(pfilme);
+fread(&filme, sizeof(Filme), 1, pfilme); 
 
-while (feof(pcliente)==0){
+while (feof(pfilme)==0){
 if (filme.cod==codP)   
 return p;
-else  { fread(&filme,sizeof(Filme), 1,pcliente);
+else  { fread(&filme,sizeof(Filme), 1,pfilme);
   p++;
   } 
 } 
@@ -140,13 +147,13 @@ printf("\n%-20s   %-11lld   %-13d   %-20s", cliente.nome, cliente.cpf, cliente.t
 
 
 void mostre1(int pos){
-fseek(pcliente, pos*sizeof(Filme), SEEK_SET);
-fread(&filme, sizeof(Filme), 1, pcliente);	
+fseek(pfilme, pos*sizeof(Filme), SEEK_SET);
+fread(&filme, sizeof(Filme), 1, pfilme);	
 printf("\n\n");
 printf("\n_____________________________________");
 printf("\nCODIGO   NOME              GENERO    ");
 printf("\n_____________________________________");
-printf("\n%-6d   %-15s   %-10c",filme.cod, filme.nomef, filme.genero);
+printf("\n%-6d   %-15s   %-10s",filme.cod, filme.nomef, filme.genero);
 
 }
 
@@ -213,12 +220,12 @@ void listar1(){
 	printf("\n_____________________________________");
 	printf("\nCODIGO   NOME              GENERO    ");
 	printf("\n=====================================");
-	rewind(pcliente);
-	fread(&filme, sizeof(Filme), 1, pcliente);
-	while (feof(pcliente) == 0)
+	rewind(pfilme);
+	fread(&filme, sizeof(Filme), 1, pfilme);
+	while (feof(pfilme) == 0)
 {   	if (filme.cod != 0)		
 	printf("\n%6d   %-15s   %-10s",filme.cod,filme.nomef,filme.genero);
- 	fread(&filme, sizeof(Filme), 1,pcliente);
+ 	fread(&filme, sizeof(Filme), 1,pfilme);
 	}
 	printf("\n_____________________________________");
     printf("\nTECLE ENTER PARA VOLTAR AO MENU...");
@@ -273,8 +280,8 @@ mostre(posicao);
 printf("\n\nDESEJA REMOVER FILME (1-sim/0-nao)? ");
 scanf("%d", &conf);
 if (conf == 1)
-{ fseek(pcliente, posicao*sizeof(Filme), SEEK_SET);
-fwrite(&filmeNulo, sizeof(Filme), 1, pcliente);
+{ fseek(pfilme, posicao*sizeof(Filme), SEEK_SET);
+fwrite(&filmeNulo, sizeof(Filme), 1, pfilme);
 printf("\n\nFILME REMOVIDO COM SUSSESSO!\n");
 }
 else
@@ -322,7 +329,7 @@ while (resp ==1);
 
 main(){
  int op;
- abreArquivo(); 
+ abreArquivo(), abreArquivo1(); 
 do{ cabec(); 
 
 printf ("\n\nOpcoes: \n\n\n");
@@ -360,7 +367,7 @@ case 8: removerfilme(); break;
 
 case 9: alterar(); break;
 
-case 0: fclose(pcliente); break;
+case 0: fclose(pcliente) && fclose(pfilme), printf("\nPROGRAMA ENCERRADO!"); break;
 default: printf("\n\nOPCAO INVALIDA!\n\n"); break;
  }
  }
